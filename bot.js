@@ -3,22 +3,21 @@ require('dotenv').config();
 const { Telegraf } = require('telegraf');
 const axios = require('axios');
 
-const bot = new Telegraf('6534804298:AAEIx3gpMhiyalApu4X4iY_eIuZWO2ucu7w');
+const bot = new Telegraf(process.env.BOT_KEY);
 
-const API_KEY = process.env.API_KEY;
+async function getData(ctx, city){
+    const weatherApiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=23b4efd808e30bf5cdf4eb817c1da6e5&units=metric&lang=ru`;
 
-bot.start((ctx) => ctx.reply('Привет! Отправь мне свою геолокацию и я дам тебе данные о погоде! :)'));
-bot.launch();
+    const response = await axios.get(weatherApiUrl);
+    
+    return response;
+}
+
+bot.start((ctx) => ctx.replyWithHTML("Привет!👋 \n\n" + "Просто назови мне город, чтобы узнать погоду☀️"));
 
 bot.on('message', (ctx) => {
-    console.log('test');
-    if(ctx.message.location){
-        const weatherApiUrl = `https://openweathermap.org/data/2.5/weather?lat=${ctx.message.location.latitude}&lon=${ctx.message.location.longitude}&appid=439d4b8O4bc8187953eb36d2a8c26a02&lang=ru`;
-
-        const response = axios.get(weatherApiUrl);
-        ctx.reply(`${response.data}`);
-    }
+    const response = getData(ctx, ctx.message.text);
+    ctx.reply('aaa');
 });
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+bot.launch();
