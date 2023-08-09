@@ -1,7 +1,7 @@
 //Читаем файл .env
 require('dotenv').config();
 
-const { Telegraf } = require('telegraf');
+const { Telegraf, Markup } = require('telegraf');
 const dateFormat = require('dateformat');
 const axios = require('axios');
 
@@ -21,7 +21,7 @@ function displayData(response, ctx){
         description: response.data.weather[0].description,
         //Температура
         temp: Math.round(response.data.main.temp),
-        //Температура чувствуется как
+        //Температура ощущается как
         feels: Math.round(response.data.main.feels_like),
         //Максимальная температура в течении дня
         max_temp: Math.round(response.data.main.temp_min),
@@ -62,8 +62,10 @@ async function getData(ctx, city){
         //Ответ от API записываем в переменную response
         const response = await axios.get(weatherApiUrl);
 
+        //Вызываем функцию для вывода сообщений
         displayData(response, ctx);
     } catch(e) {
+        //Если произошла ошибка, что пользователь ввёл неправильно город, то отправляем ему сообщение
         ctx.replyWithHTML("Произошла ошибка, мы не нашли город который вы указали :( \n\n" + "Назовите другой город☀️");
     }
 }
@@ -73,9 +75,9 @@ bot.start((ctx) => ctx.replyWithHTML("Привет!👋 \n\n" + "Просто н
 
 //При отправлении любого сообщения боту будем делать запрос
 //На получение данных о погоде
-
 bot.on('message', (ctx) => {
     getData(ctx, ctx.message.text);
 });
 
+//Запуск бота
 bot.launch();
